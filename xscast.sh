@@ -9,6 +9,7 @@ dfg='#ffffff'
 dbg='#000000'
 dbar=yes
 delay=0
+dmaxlen=40
 kfinish='C-Ins'
 kclear='Ins'
 
@@ -38,6 +39,8 @@ Usage: $0 [OPTION]... [output-file]
   -b, --background, --bg  set the color of the keystroke box
   -n, --no-bar            do not display the bar containing keystrokes
   -d, --delay             set a delay before starting to record
+  -l, --max-len           set the max number of characters to display in the
+                          keystroke bar before clearing it automatically
 EOS
             exit
             ;;
@@ -78,6 +81,7 @@ dalign=l
 dfg='#ffffff'
 dbg='#000000'
 dbar=yes
+dmaxlen=40
 delay=0
 # keybindings (in the same format as xscast output)
 kfinish='C-Ins'
@@ -95,6 +99,7 @@ EOS
         -b|--background|--bg) c_dbg="$2"; shift ;;
         -n|--no-bar) c_dbar=no; : ;;
         -d|--delay) c_delay="$2"; shift ;;
+        -l|--max-len) c_dmaxlen="$2"; shift ;;
         -*)
             echo >&2 "Unknown option \`$1'"
             exit 1
@@ -125,6 +130,7 @@ dfg="${c_dfg:-$dfg}"
 dbg="${c_dbg:-$dbg}"
 dbar="${c_dbar:-$dbar}"
 delay="${c_delay:-$delay}"
+dmaxlen="${c_dmaxlen:-$dmaxlen}"
 
 # use xwininfo to grab info about a certain window
 echo Click on the window that you want to xscast
@@ -223,6 +229,10 @@ do
                     cache=
                     echo
                 else
+                    if [ ${#cache} -ge $dmaxlen ]
+                    then
+                      cache=
+                    fi
                     if [ 1 -lt ${#name} ]
                     then
                         cache="${cache% } $name "
