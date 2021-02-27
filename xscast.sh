@@ -10,6 +10,7 @@ dbg='#000000'
 dbar=yes
 drecord=yes
 delay=0
+dmaxlen=40
 kfinish='C-Ins'
 kclear='Ins'
 
@@ -40,6 +41,8 @@ Usage: $0 [OPTION]... [output-file]
   -n, --no-bar            do not display the bar containing keystrokes
   -d, --delay             set a delay before starting to record
   -R, --no-record         don't record, only display the bar containing keystrokes
+  -l, --max-len           set the max number of characters to display in the
+                          keystroke bar before clearing it automatically
 EOS
             exit
             ;;
@@ -81,6 +84,7 @@ dfg='#ffffff'
 dbg='#000000'
 dbar=yes
 drecord=yes
+dmaxlen=40
 delay=0
 # keybindings (in the same format as xscast output)
 kfinish='C-Ins'
@@ -99,6 +103,7 @@ EOS
         -n|--no-bar) c_dbar=no; : ;;
         -R|--no-record) c_drecord=no; : ;;
         -d|--delay) c_delay="$2"; shift ;;
+        -l|--max-len) c_dmaxlen="$2"; shift ;;
         -*)
             echo >&2 "Unknown option \`$1'"
             exit 1
@@ -129,6 +134,7 @@ dbg="${c_dbg:-$dbg}"
 dbar="${c_dbar:-$dbar}"
 drecord="${c_drecord:-$drecord}"
 delay="${c_delay:-$delay}"
+dmaxlen="${c_dmaxlen:-$dmaxlen}"
 
 if [ "$drecord" == yes ] && [ -z "$outfile" ]
 then
@@ -239,6 +245,10 @@ do
                     cache=
                     echo
                 else
+                    if [ ${#cache} -ge $dmaxlen ]
+                    then
+                      cache=
+                    fi
                     if [ 1 -lt ${#name} ]
                     then
                         cache="${cache% } $name "
